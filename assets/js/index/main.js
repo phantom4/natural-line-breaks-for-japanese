@@ -298,7 +298,7 @@ var parmalink = __webpack_require__(73);
                 doEndSpaceToEntity: true 
             }
         }; 
-        var analyzer = new Worker('./assets/js/index/worker.js'); 
+        var analyzer = new Worker('./assets/js/index/worker.min.js'); 
         var savedPreview = $.cookie(constants.cookieKey.preview); 
         var savedOption = $.cookie(constants.cookieKey.option); 
 
