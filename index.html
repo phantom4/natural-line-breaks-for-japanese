@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html class="no-js" lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>日本語文章の折り返し制御(beta)</title>
+    <meta name="description" content="日本語の文章が自然な位置で改行するためのコードを生成するツール。">
+    <meta name="keywords" content="">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-title" content="">
+    <link rel="canonical" href="http://blog.phantom4.org/?p=395">
+    <link rel="stylesheet" href="./assets/css/common/common.min.css?v=1">
+    <link rel="stylesheet" href="./assets/css/index/materialize.min.css?v=20171001">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="./assets/css/index/main.min.css?v=20171001">
+  </head>
+  <body class="blue-grey lighten-5">
+    <div class="container" id="app">
+      <div class="row">
+        <div class="col s12">
+          <h1><span class="wordwrap" role="presentation">自然な</span><span class="wordwrap" role="presentation">位置で</span><span class="wordwrap" role="presentation">改行</span><span class="wordwrap" role="presentation">する</span><span class="wordwrap" role="presentation">HTML</span><span class="wordwrap" role="presentation">を</span><span class="wordwrap" role="presentation">生成</span><span class="wordwrap" role="presentation">ツール</span></h1>
+          <p class="lead"><span class="wordwrap" role="presentation">日本語の</span><span class="wordwrap" role="presentation">文章を</span><span class="wordwrap" role="presentation">キーワードごとに</span><span class="wordwrap" role="presentation">グループ化</span><span class="wordwrap" role="presentation">して、</span><span class="wordwrap" role="presentation">単語の</span><span class="wordwrap" role="presentation">途中で</span><span class="wordwrap" role="presentation">改行</span><span class="wordwrap" role="presentation">しない</span><span class="wordwrap" role="presentation">HTMLを</span><span class="wordwrap" role="presentation">生成</span><span class="wordwrap" role="presentation">します。</span><br><span class="wordwrap" role="presentation">JavaScriptなどの</span><span class="wordwrap" role="presentation">配列</span><span class="wordwrap" role="presentation">としても</span><span class="wordwrap" role="presentation">生成可。</span><span class="wordwrap" role="presentation">（処理は</span><span class="wordwrap" role="presentation">自前で</span><span class="wordwrap" role="presentation">実装</span><span class="wordwrap" role="presentation">する</span><span class="wordwrap" role="presentation">必要が</span><span class="wordwrap" role="presentation">あります）</span><br><span class="wordwrap" role="presentation">分かち書きには</span><span class="wordwrap" role="presentation"><a href="https://github.com/takuyaa/kuromoji.js" target="_blank">kuromoji.js</a>を</span><span class="wordwrap" role="presentation">使用。</span></p>
+        </div>
+      </div>
+      <div class="row main white z-depth-1" id="input-section">
+        <div class="col s12 valign-wrapper">
+          <h2 class="left">日本語の文章</h2><a class="waves-effect waves-light btn-flat absolute-middle-right" id="clear-input" v-on:click.prevent="clearText"><i class="material-icons left">delete</i>clear</a>
+        </div>
+        <div class="col s12">
+          <div class="input-field">
+            <textarea class="materialize-textarea" placeholder="日本語の文章" v-model="text" id="input-textarea"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="row center-align"><i class="material-icons small" v-show="isAnalyzing === false">arrow_downward</i>
+        <div class="preloader-wrapper small active" v-show="isAnalyzing === true">
+          <div class="spinner-layer spinner-blue-only">
+            <div class="circle-clipper left">
+              <div class="circle"></div>
+            </div>
+            <div class="gap-patch">
+              <div class="circle"></div>
+            </div>
+            <div class="circle-clipper right">
+              <div class="circle"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row main white z-depth-1" id="output-section">
+        <ul class="tabs blue-grey darken-1">
+          <li class="tab"><a href="#output-preview">結果をシミュレート</a></li>
+          <li class="tab"><a href="#output-code">貼り付け用コード</a></li>
+        </ul>
+        <div id="output-preview">
+          <div class="col s12"><a class="dropdown-button btn-flat" data-activates="output-preview-screen-width"><i class="material-icons right">arrow_drop_down</i>シミュレート幅&nbsp;({{ preview.screenWidth }}&nbsp;<span class="no-text-transform">px</span>)</a>
+            <ul class="dropdown-content" id="output-preview-screen-width">
+              <li v-bind:class="{ active: 80 === preview.screenWidth }"><a href="#!" v-on:click.prevent="setPreviewScreenSize(80)">80 px</a></li>
+              <li v-bind:class="{ active: 100 === preview.screenWidth }"><a href="#!" v-on:click.prevent="setPreviewScreenSize(100)">100 px</a></li>
+              <li v-bind:class="{ active: 125 === preview.screenWidth }"><a href="#!" v-on:click.prevent="setPreviewScreenSize(125)">125 px</a></li>
+              <li v-bind:class="{ active: 150 === preview.screenWidth }"><a href="#!" v-on:click.prevent="setPreviewScreenSize(150)">150 px</a></li>
+              <li v-bind:class="{ active: 175 === preview.screenWidth }"><a href="#!" v-on:click.prevent="setPreviewScreenSize(175)">175 px</a></li>
+              <li v-bind:class="{ active: 200 === preview.screenWidth }"><a href="#!" v-on:click.prevent="setPreviewScreenSize(200)">200 px</a></li>
+              <li v-bind:class="{ active: 225 === preview.screenWidth }"><a href="#!" v-on:click.prevent="setPreviewScreenSize(225)">225 px</a></li>
+              <li v-bind:class="{ active: 250 === preview.screenWidth }"><a href="#!" v-on:click.prevent="setPreviewScreenSize(250)">250 px</a></li>
+              <li v-bind:class="{ active: 275 === preview.screenWidth }"><a href="#!" v-on:click.prevent="setPreviewScreenSize(275)">275 px</a></li>
+              <li v-bind:class="{ active: 300 === preview.screenWidth }"><a href="#!" v-on:click.prevent="setPreviewScreenSize(300)">300 px</a></li>
+              <li v-bind:class="{ active: 320 === preview.screenWidth }"><a href="#!" v-on:click.prevent="setPreviewScreenSize(320)">320 px<small class="grey-text">&nbsp;&nbsp;&nbsp;iPhone5 縦</small></a></li>
+              <li v-bind:class="{ active: 360 === preview.screenWidth }"><a href="#!" v-on:click.prevent="setPreviewScreenSize(360)">360 px<small class="grey-text">&nbsp;&nbsp;&nbsp;Android 縦</small></a></li>
+              <li v-bind:class="{ active: 375 === preview.screenWidth }"><a href="#!" v-on:click.prevent="setPreviewScreenSize(375)">375 px<small class="grey-text">&nbsp;&nbsp;&nbsp;iPhone6 縦</small></a></li>
+              <li v-bind:class="{ active: 414 === preview.screenWidth }"><a href="#!" v-on:click.prevent="setPreviewScreenSize(414)">414 px<small class="grey-text">&nbsp;&nbsp;&nbsp;iPhone6/7 縦</small></a></li>
+              <li v-bind:class="{ active: 568 === preview.screenWidth }"><a href="#!" v-on:click.prevent="setPreviewScreenSize(568)">568 px<small class="grey-text">&nbsp;&nbsp;&nbsp;iPhone5 横</small></a></li>
+              <li v-bind:class="{ active: 640 === preview.screenWidth }"><a href="#!" v-on:click.prevent="setPreviewScreenSize(640)">640 px<small class="grey-text">&nbsp;&nbsp;&nbsp;Android 横</small></a></li>
+              <li v-bind:class="{ active: 667 === preview.screenWidth }"><a href="#!" v-on:click.prevent="setPreviewScreenSize(667)">667 px<small class="grey-text">&nbsp;&nbsp;&nbsp;iPhone6 横</small></a></li>
+              <li v-bind:class="{ active: 736 === preview.screenWidth }"><a href="#!" v-on:click.prevent="setPreviewScreenSize(736)">736 px<small class="grey-text">&nbsp;&nbsp;&nbsp;iPhone6/7 横</small></a></li>
+              <li v-bind:class="{ active: 768 === preview.screenWidth }"><a href="#!" v-on:click.prevent="setPreviewScreenSize(768)">768 px<small class="grey-text">&nbsp;&nbsp;&nbsp;iPad 縦</small></a></li>
+              <li v-bind:class="{ active: 960 === preview.screenWidth }"><a href="#!" v-on:click.prevent="setPreviewScreenSize(960)">960 px</a></li>
+              <li v-bind:class="{ active: 1024 === preview.screenWidth }"><a href="#!" v-on:click.prevent="setPreviewScreenSize(1024)">1024 px<small class="grey-text">&nbsp;&nbsp;&nbsp;iPad 横</small></a></li>
+              <li v-bind:class="{ active: 1280 === preview.screenWidth }"><a href="#!" v-on:click.prevent="setPreviewScreenSize(1280)">1280 px<small class="grey-text">&nbsp;&nbsp;&nbsp;SXGA</small></a></li>
+            </ul><a class="dropdown-button btn-flat" data-activates="output-preview-font-size"><i class="material-icons right">arrow_drop_down</i>文字サイズ&nbsp;({{ preview.fontSize }}&nbsp;<span class="no-text-transform">px</span>)</a>
+            <ul class="dropdown-content" id="output-preview-font-size">
+              <li v-bind:class="{ active: 8 === preview.fontSize }"><a href="#!" v-on:click.prevent="setPreviewFontSize(8)">8 px</a></li>
+              <li v-bind:class="{ active: 9 === preview.fontSize }"><a href="#!" v-on:click.prevent="setPreviewFontSize(9)">9 px</a></li>
+              <li v-bind:class="{ active: 10 === preview.fontSize }"><a href="#!" v-on:click.prevent="setPreviewFontSize(10)">10 px</a></li>
+              <li v-bind:class="{ active: 11 === preview.fontSize }"><a href="#!" v-on:click.prevent="setPreviewFontSize(11)">11 px</a></li>
+              <li v-bind:class="{ active: 12 === preview.fontSize }"><a href="#!" v-on:click.prevent="setPreviewFontSize(12)">12 px</a></li>
+              <li v-bind:class="{ active: 14 === preview.fontSize }"><a href="#!" v-on:click.prevent="setPreviewFontSize(14)">14 px</a></li>
+              <li v-bind:class="{ active: 16 === preview.fontSize }"><a href="#!" v-on:click.prevent="setPreviewFontSize(16)">16 px</a></li>
+              <li v-bind:class="{ active: 18 === preview.fontSize }"><a href="#!" v-on:click.prevent="setPreviewFontSize(18)">18 px</a></li>
+              <li v-bind:class="{ active: 24 === preview.fontSize }"><a href="#!" v-on:click.prevent="setPreviewFontSize(24)">24 px</a></li>
+              <li v-bind:class="{ active: 30 === preview.fontSize }"><a href="#!" v-on:click.prevent="setPreviewFontSize(30)">30 px</a></li>
+              <li v-bind:class="{ active: 36 === preview.fontSize }"><a href="#!" v-on:click.prevent="setPreviewFontSize(36)">36 px</a></li>
+              <li v-bind:class="{ active: 48 === preview.fontSize }"><a href="#!" v-on:click.prevent="setPreviewFontSize(48)">48 px</a></li>
+            </ul>
+          </div>
+          <div class="col s12 preview-html">
+            <div class="preview-html-scale center-align grey-text" v-bind:style="{ width: preview.screenWidth + 'px' }"></div>
+            <div class="preview-html-view amber lighten-4" v-bind:class="{ 'show-guide': preview.showGroupGuide }" v-bind:style="{ width: preview.screenWidth + 'px', 'font-size': preview.fontSize + 'px' }">
+              <template v-for="item in previewItems"><span class="wordwrap" v-if="item.isNewline !== true">{{ item.word }}
+                  <div class="guide"></div></span><br v-if="item.isNewline === true"></template>
+            </div>
+          </div>
+          <div class="col s12">
+            <input class="filled-in" type="checkbox" v-model="preview.showGroupGuide" id="preview-html-show-guide">
+            <label for="preview-html-show-guide"><span class="wordwrap" role="presentation">区切りを</span><span class="wordwrap" role="presentation">表示</span></label>
+          </div>
+        </div>
+        <div id="output-code">
+          <div class="col s12"><a class="waves-effect waves-light btn-flat" id="clipboard-copy" data-clipboard-target="#output-textarea"><i class="material-icons left">content_copy</i>copy</a></div>
+          <div class="col s12 l8" id="output-code-textarea">
+            <div class="input-field">
+              <textarea class="materialize-textarea amber lighten-4" v-model="resultCode" readonly="readonly" id="output-textarea"></textarea>
+            </div><small><span class="wordwrap" role="presentation">cssで</span><span class="wordwrap" role="presentation">{ display: inline-block; } を</span><span class="wordwrap" role="presentation">指定</span><span class="wordwrap" role="presentation">してください。</span></small>
+          </div>
+          <div class="col s12 l4" id="output-code-option">
+            <div class="col s12 valign-wrapper grey lighten-4">
+              <h3>出力設定</h3><a class="dropdown-button btn-flat absolute-middle-right" data-activates="output-format-preset"><i class="material-icons right">arrow_drop_down</i>プリセット</a>
+              <ul class="dropdown-content" id="output-format-preset">
+                <li><a href="#!" v-on:click.prevent="setOutputFormat(0)"><small class="grey-text">HTML<br></small><span class="red-text">&lt;span class=&quot;wordwrap&quot; role=&quot;presentation&quot;&gt;</span><span class="grey-text text-lighten-1">word</span><span class="red-text">&lt;/span&gt;</span></a></li>
+                <li><a href="#!" v-on:click.prevent="setOutputFormat(1)"><small class="grey-text">Slim<br></small><span class="red-text">span.wordwrap role=&quot;presentation&quot; </span><span class="grey-text text-lighten-1">word</span><span class="red-text"></span></a></li>
+                <li><a href="#!" v-on:click.prevent="setOutputFormat(2)"><small class="grey-text">Pug<br></small><span class="red-text">span.wordwrap(role=&quot;presentation&quot;) </span><span class="grey-text text-lighten-1">word</span><span class="red-text"></span></a></li>
+                <li><a href="#!" v-on:click.prevent="setOutputFormat(3)"><small class="grey-text">Array (double quotation)<br></small><span class="red-text">&quot;</span><span class="grey-text text-lighten-1">word</span><span class="red-text">&quot;</span></a></li>
+                <li><a href="#!" v-on:click.prevent="setOutputFormat(4)"><small class="grey-text">Array (single quotation)<br></small><span class="red-text">'</span><span class="grey-text text-lighten-1">word</span><span class="red-text">'</span></a></li>
+                <li><a href="#!" v-on:click.prevent="setOutputFormat(5)"><small class="grey-text">YAML array<br></small><span class="red-text">- &quot;</span><span class="grey-text text-lighten-1">word</span><span class="red-text">&quot;</span></a></li>
+              </ul>
+            </div>
+            <div class="col s12 grey lighten-4">
+              <div class="option-item">
+                <input class="filled-in" id="option-newline" type="checkbox" v-model="option.doNewline">
+                <label for="option-newline">改行</label>
+              </div>
+              <div class="option-item">
+                <input class="filled-in" id="option-delimiter" type="checkbox" v-model="option.doDelimiter">
+                <label for="option-delimiter">区切る</label>
+                <div class="row">
+                  <div class="col s11 offset-s1">
+                    <div class="input-field">
+                      <input type="text" v-model="option.delimiterMark" v-bind:disabled="!option.doDelimiter" id="option-delimiter-mark">
+                      <label for="option-delimiter-mark">記号</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="option-item">
+                <input class="filled-in" id="option-add-string" type="checkbox" v-model="option.doFormatString">
+                <label for="option-add-string"><span class="wordwrap" role="presentation">単語を</span><span class="wordwrap" role="presentation">囲う</span><span class="wordwrap" role="presentation">（コーテーション、</span><span class="wordwrap" role="presentation">タグなど）</span></label>
+                <div class="col s11 offset-s1">
+                  <div class="input-field">
+                    <input type="text" v-model="option.beforeString" v-bind:disabled="!option.doFormatString" id="option-add-string-before">
+                    <label for="option-add-string-before">前</label>
+                  </div>
+                </div>
+                <div class="col s11 offset-s1">
+                  <div class="input-field">
+                    <input type="text" v-model="option.afterString" v-bind:disabled="!option.doFormatString" id="option-add-string-after">
+                    <label for="option-add-string-after">後</label>
+                  </div>
+                </div>
+              </div>
+              <div class="option-item">
+                <input class="filled-in" id="option-newline-to" type="checkbox" v-model="option.doReplaceNewLine">
+                <label for="option-newline-to"><span class="wordwrap" role="presentation">改行を</span><span class="wordwrap" role="presentation">変換</span></label>
+                <div class="row">
+                  <div class="col s11 offset-s1">
+                    <div class="input-field">
+                      <input type="text" v-model="option.replaceNewlineMark" v-bind:disabled="!option.doReplaceNewLine" id="option-replace-newline-mark">
+                      <label for="option-replace-newline-mark">記号</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="option-item">
+                <input class="filled-in" id="option-end-space-to-entity" type="checkbox" v-model="option.doEndSpaceToEntity">
+                <label for="option-end-space-to-entity"><span class="wordwrap" role="presentation">単語</span><span class="wordwrap" role="presentation">末尾の</span><span class="wordwrap" role="presentation">半角</span><span class="wordwrap" role="presentation">スペースを</span><span class="wordwrap" role="presentation">&amp;nbsp;に</span><span class="wordwrap" role="presentation">変換</span></label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="./assets/js/common/vendor/modernizr.js?v=20171001"></script>
+    <script src="./assets/js/common/vendor/plugins.min.js?v=20171001"></script>
+    <script src="./assets/js/index/vendor/vue.min.js?v=20171001"></script>
+    <script src="./assets/js/index/vendor/materialize.min.js?v=20171001"></script>
+    <script src="./assets/js/index/main.min.js?v=20171001"></script>
+  </body>
+</html>
