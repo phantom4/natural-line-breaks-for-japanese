@@ -298,7 +298,7 @@ var parmalink = __webpack_require__(73);
                 doEndSpaceToEntity: true 
             }
         }; 
-        var analyzer = new Worker('./assets/js/index/worker.min.js'); 
+        var analyzer = new Worker('./assets/js/index/worker.min.js?v=' + new Date().getTime()); 
         var savedPreview = $.cookie(constants.cookieKey.preview); 
         var savedOption = $.cookie(constants.cookieKey.option); 
 
@@ -411,6 +411,8 @@ var parmalink = __webpack_require__(73);
 
                 clearText: function clearText() {
                     this.text = '';
+
+                    document.querySelector('#input-textarea').focus();
                 },
 
 

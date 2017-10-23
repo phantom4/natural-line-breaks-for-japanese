@@ -1891,11 +1891,12 @@ function tokenize(text) {
 
 
 
-        if (prevToken.surface_form.match(/、$/) || prevToken.pos_detail_1 === '空白') {
+        if (prevToken.surface_form.match(/[、|。]$/) || prevToken.pos_detail_1 === '空白') {
             isBreakBefore = true;
         }
+
         if (pos === '名詞') {
-            if (!(surfaceForm === '、' || surfaceForm === '・' || surfaceForm.match(/[〉》」』｣)）\]】〕〗〙〛}>)❩❫❭❯❱❳❵｝]/) || posDetail1 === '接尾'
+            if (!(surfaceForm === '、' || surfaceForm === '・' || surfaceForm === '!' || surfaceForm === '！' || surfaceForm.match(/[〉》」』｣)）\]】〕〗〙〛}>)❩❫❭❯❱❳❵｝]/) || posDetail1 === '接尾'
             || prevToken.pos === '形容詞' && prevToken.pos_detail_1 === '非自立' || prevToken.pos === '接頭詞' || prevToken.surface_form.match(/[0-9０-９]$/) || prevToken.surface_form.match(/[〈《「『｢（(\[【〔〚〖〘❮❬❪❨(<{❲❰｛❴]$/) || prevToken.pos_detail_1 === '括弧開'
             )) {
                 isBreakBefore = true;
